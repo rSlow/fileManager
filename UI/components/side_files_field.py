@@ -3,10 +3,10 @@ from tkinter import constants
 
 
 class FileField(Frame):
-    def __init__(self, master):
+    def __init__(self, master, height=500):
         super(FileField, self).__init__(
             master=master,
-            height=500,
+            height=height,
             borderwidth=1,
             relief=constants.RIDGE,
             bg="white"

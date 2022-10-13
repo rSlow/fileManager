@@ -1,5 +1,8 @@
-from tkinter import *
-root = Tk()
-frame1 = Frame(root, width=400, height=660, bg="White", borderwidth=1, relief=RIDGE)
-frame1.place(relx=0.7, y=80)
-root.mainloop()
+from pathlib import Path
+
+# print(*Path.cwd().glob("../*.*"))
+import os
+from pprint import pprint
+
+for p in os.walk("../", topdown=False):
+    pprint(p)

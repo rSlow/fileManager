@@ -1,6 +1,6 @@
-from tkinter import constants
+from tkinter import constants, ttk
 
-from UI.components.files_field import FileField
+from UI.components.side_files_field import FileField
 from UI.sections.base import BaseSection
 
 
@@ -11,9 +11,10 @@ class CentralSection(BaseSection):
             header_text=header_text
         )
         self.pack_file_field()
+        ttk.Label(width=70, master=self).pack()
 
     def pack_file_field(self):
         file_field = FileField(
-            master=self
+            master=self,
         )
         file_field.pack(fill=constants.X)
