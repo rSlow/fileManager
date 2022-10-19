@@ -3,6 +3,7 @@ from tkinter import constants, ttk
 from ..components.section_header import SectionHeader
 
 
+
 class BaseSection(ttk.Frame):
     def __init__(self, master, header_text: str):
         super(BaseSection, self).__init__(
@@ -18,11 +19,13 @@ class BaseSection(ttk.Frame):
         )
         header_block.pack(anchor=constants.CENTER)
 
-    def pack(self, *args, **kwargs):
+    def pack(self, side=constants.LEFT):
         super(BaseSection, self).pack(
-            *args,
             fill=constants.X,
             expand=True,
             anchor=constants.N,
-            side=constants.LEFT,
-            **kwargs)
+            side=side,
+        )
+
+    def has_path(self):
+        return False

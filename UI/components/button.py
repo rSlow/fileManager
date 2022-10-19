@@ -2,10 +2,11 @@ from tkinter import ttk, constants
 
 
 class Button(ttk.Button):
-    def __init__(self, master, text: str):
+    def __init__(self, master, text: str, **kwargs):
         super(Button, self).__init__(
             master=master,
-            text=text
+            text=text,
+            **kwargs
         )
 
     def pack(self, *args,
@@ -20,5 +21,6 @@ class Button(ttk.Button):
             fill=fill,
             padx=pad_x,
             pady=pad_y,
+            expand=True,
             **kwargs
         )

@@ -1,3 +1,5 @@
+import glob
+import os.path
 from tkinter import constants
 
 from ..components.buttons_side_block import SideButtonsBlock
@@ -21,5 +23,14 @@ class SideSection(BaseSection):
 
     def pack_elements(self):
         self.file_string.pack(fill=constants.X)
-        self.file_field.pack(fill=constants.X)
+        self.file_field.pack(fill=constants.BOTH, expand=True)
         self.bottom_buttons.pack(fill=constants.X)
+
+    def get_files_list(self):
+        files_list = []
+        current_directory = self.file_string.get_directory()
+        if current_directory:
+            for path in glob.glob(f"{current_directory}/**", recursive=True):
+                if os.path.isfile(path):
+                    files_list.append(path)
+        print(files_list)
