@@ -1,6 +1,6 @@
 from tkinter import constants, ttk
 
-from UI.components.side_files_field import FileField
+from ..items.side_files_field import FileField
 from UI.sections.base import BaseSection
 
 

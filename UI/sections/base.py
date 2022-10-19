@@ -3,7 +3,6 @@ from tkinter import constants, ttk
 from ..components.section_header import SectionHeader
 
 
-
 class BaseSection(ttk.Frame):
     def __init__(self, master, header_text: str):
         super(BaseSection, self).__init__(

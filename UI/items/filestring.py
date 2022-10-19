@@ -64,11 +64,15 @@ class FileStringBlock(ttk.Frame):
         super(FileStringBlock, self).__init__(*args, **kwargs)
         self.directory_entry = DirEntry(master=self)
         self.dir_buttons = ttk.Frame(master=self)
-        self.dir_buttons.grid_columnconfigure(0, weight=1)
-        self.dir_buttons.grid_columnconfigure(1, weight=1)
+
+        self._conf_grid_buttons()
 
         self.grid_dir_label()
         self.grid_buttons()
+
+    def _conf_grid_buttons(self):
+        self.dir_buttons.grid_columnconfigure(0, weight=1)
+        self.dir_buttons.grid_columnconfigure(1, weight=1)
 
     def grid_dir_label(self):
         self.directory_entry.pack(fill=c.X)

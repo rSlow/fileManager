@@ -1,5 +1,4 @@
 from tkinter import ttk, constants as c
-from typing import Sequence, Literal
 
 from UI.components.button import Button
 
@@ -7,8 +6,9 @@ from UI.components.button import Button
 class SideButtonsBlock(ttk.Frame):
     pad = 1
 
-    def __init__(self, master):
-        super(SideButtonsBlock, self).__init__(master=master)
+    def __init__(self, *args, parent, **kwargs):
+        super(SideButtonsBlock, self).__init__(*args, **kwargs)
+        self.parent = parent
 
         self.configure_grid()
         self.grid_buttons()
@@ -27,10 +27,13 @@ class SideButtonsBlock(ttk.Frame):
         select_all_button = Button(
             master=self,
             text="Выбрать все",
+            command=self.parent.file_field.select_all
         )
         clear_selection_button = Button(
             master=self,
-            text="Снять выделение"
+            text="Снять выделение",
+            command=self.parent.file_field.unselect_all
+
         )
         add_selected_button = Button(
             master=self,
@@ -56,29 +59,3 @@ class SideButtonsBlock(ttk.Frame):
         add_replacing_exiting_button.grid(row=2, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
         add_replacing_older_button.grid(row=3, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
 
-    def pack_second_row(self):
-        second_row = ttk.Frame(master=self)
-
-        select_all_button = Button(
-            master=second_row,
-            text="Выбрать все",
-            command=self.master.file_field.select_all
-        )
-        unselect_all_button = Button(
-            master=self,
-            text="Снять все выделения",
-            command=self.master.file_field.unselect_all
-        )
-
-        select_all_button.pack(side=c.LEFT)
-        unselect_all_button.pack(side=c.RIGHT)
-        second_row.pack(fill=c.BOTH, expand=True)
-
-    def pack_bottom_button(self):
-        Button(
-            master=self,
-            text="Синхронизировать с приоритетом",
-            command=self.master.get_files_list
-        ).pack(
-            side=c.BOTTOM,
-        )
