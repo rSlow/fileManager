@@ -24,7 +24,7 @@ class FileField(Frame):
             selectmode=c.MULTIPLE,
             selectbackground="#cccccc"
         )
-        self.bind_listbox()
+        self.listbox.bind("<<ListboxSelect>>", self.update_frame)
 
         self.scrollbar_x.config(command=self.listbox.xview)
         self.scrollbar_y.config(command=self.listbox.yview)
@@ -32,20 +32,6 @@ class FileField(Frame):
         self.scrollbar_y.pack(fill=c.Y, side=c.RIGHT)
         self.scrollbar_x.pack(fill=c.X, side=c.BOTTOM)
         self.listbox.pack(fill=c.BOTH, expand=False)
-
-        # directory = "/home/rslow/Рабочий стол/работа/"
-        # for path in glob.glob(f"{directory}/**", recursive=True):
-        #     if not os.path.isdir(path):
-        #         self.listbox.insert(c.END, path[len(directory):])
-
-    def bind_listbox(self):
-        def get_selections():
-            pass
-
-        self.listbox.bind(
-            "<<ListboxSelect>>",
-            self.update_frame
-        )
 
     def update_frame(self, event=None):
         if event:
@@ -58,9 +44,9 @@ class FileField(Frame):
         self.clear()
 
         for file in files:
-            self.add_file(file)
+            self.append_file(file)
 
-    def add_file(self, file: File):
+    def append_file(self, file: File):
         self.listbox.insert(c.END, file)
 
     def clear(self):

@@ -1,3 +1,4 @@
+import os.path
 from tkinter import ttk
 from tkinter.filedialog import askdirectory
 from tkinter import constants as c
@@ -31,9 +32,10 @@ class SetDirButton(ttk.Button):
         self.parent = parent
 
     def set_directory(self):
-        initial_dir = self.parent.get_initial_dir()
+        initial_dir = self.parent.get_directory()
+
         path = askdirectory(
-            initialdir=initial_dir,
+            initialdir=initial_dir or "./",
             title="Check work directory:"
         )
         if path or initial_dir:
@@ -60,10 +62,13 @@ class DirEntry(ttk.Entry):
 class FileStringBlock(ttk.Frame):
     pad = 1
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, initial_dir: str | None = None, **kwargs):
         super(FileStringBlock, self).__init__(*args, **kwargs)
         self.directory_entry = DirEntry(master=self)
         self.dir_buttons = ttk.Frame(master=self)
+
+        if initial_dir is not None and os.path.isdir(initial_dir):
+            self.set_dir_entry_value(initial_dir)
 
         self._conf_grid_buttons()
 
@@ -96,9 +101,6 @@ class FileStringBlock(ttk.Frame):
             index=0,
             string=text
         )
-
-    def get_initial_dir(self):
-        return self.directory_entry.get()
 
     def get_directory(self):
         return self.directory_entry.get()

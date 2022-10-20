@@ -1,4 +1,5 @@
 import os.path
+from datetime import datetime
 
 
 class File:
@@ -12,23 +13,38 @@ class File:
         self.base_dir = base_dir
         self.path = path
         self.relative_path = self._get_relative_path()
+        self._edit_date = None
 
     def _get_relative_path(self):
         return self.path[len(self.base_dir) + 1:]
 
-    def __str__(self):
+    def get_visible_path(self):
         split = 80
         if len(self.relative_path) > split:
             paths = self.relative_path.split("/")
             first = paths.pop(0)
             file = paths.pop(len(paths) - 1)
-            while len(path := f"{first}/.../{'/'.join(paths)}/{file}") > split:
-                paths.pop(0)
+            while len(path := f"{first}/...{'/' * (len(paths) > 0)}{'/'.join(paths)}/{file}") > split:
                 if len(paths) == 0:
                     break
+                paths.pop(0)
             return path
         else:
             return self.relative_path
+
+    def __str__(self):
+        return self.get_visible_path()
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def edit_date(self) -> datetime:
+        if self._edit_date is None:
+            ts = os.path.getmtime(self.path)
+            edit_date = datetime.fromtimestamp(ts)
+            self._edit_date = edit_date
+        return self._edit_date
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
