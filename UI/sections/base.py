@@ -25,6 +25,3 @@ class BaseSection(ttk.Frame):
             anchor=constants.N,
             side=side,
         )
-
-    def has_path(self):
-        return False

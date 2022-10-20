@@ -15,11 +15,15 @@ class File:
         self.relative_path = self._get_relative_path()
         self._edit_date = None
 
+    @property
+    def filename(self):
+        return self.path.split("/")[-1]
+
     def _get_relative_path(self):
         return self.path[len(self.base_dir) + 1:]
 
     def get_visible_path(self):
-        split = 80
+        split = 100
         if len(self.relative_path) > split:
             paths = self.relative_path.split("/")
             first = paths.pop(0)
@@ -31,6 +35,11 @@ class File:
             return path
         else:
             return self.relative_path
+
+    def is_real(self):
+        if not self.filename.startswith("~"):
+            return True
+        return False
 
     def __str__(self):
         return self.get_visible_path()

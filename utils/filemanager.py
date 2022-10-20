@@ -1,3 +1,6 @@
+import glob
+import os
+
 from .file import File
 
 
@@ -49,39 +52,39 @@ class FileManager:
         self.right_section_files = SideFileSection()
         self.central_section_files = CentralFileSection()
 
-        self._left_section_file_table = self.app.left_section.get_file_table()
-        self._right_section_file_table = self.app.right_section.get_file_table()
+        left_dir = self.app.left_section.get_dir()
+        right_dir = self.app.right_section.get_dir()
+
+        self._left_section_file_table = self.get_file_table(left_dir)
+        self._right_section_file_table = self.get_file_table(right_dir)
 
         self.init_left_side()
         self.init_right_side()
 
-        print(self.left_section_files)
-        print(self.central_section_files)
-        print(self.right_section_files)
-
     def init_right_side(self):
         for path, left_file in self._left_section_file_table.items():
             right_file = self._right_section_file_table.get(path, None)
-            if not right_file:
-                self.right_section_files.append(left_file)
 
             # check to add in central side
+            if right_file is None:
+                if left_file.is_real():
+                    self.right_section_files.append(left_file)
             elif left_file.edit_date != right_file.edit_date:
                 self.central_section_files.add_pair(left_file, right_file)
 
     def init_left_side(self):
         for path, right_file in self._right_section_file_table.items():
             left_file = self._left_section_file_table.get(path, None)
-            if not left_file:
+            if not left_file and right_file.is_real():
                 self.left_section_files.append(right_file)
 
-    # def get_file_table(self):
-    #     files = {}
-    #     directory = self.file_string.get_directory()
-    #     if os.path.isdir(directory):
-    #         directory_pattern = os.path.join(directory, "**")
-    #         for path in glob.glob(directory_pattern, recursive=True):
-    #             if os.path.isfile(path):
-    #                 file = File(base_dir=directory, path=path)
-    #                 files[file.relative_path] = file
-    #     return files
+    @staticmethod
+    def get_file_table(directory: str):
+        files = {}
+        if os.path.isdir(directory):
+            directory_pattern = os.path.join(directory, "**")
+            for path in glob.glob(directory_pattern, recursive=True):
+                if os.path.isfile(path):
+                    file = File(base_dir=directory, path=path)
+                    files[file.relative_path] = file
+        return files
