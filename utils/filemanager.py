@@ -1,34 +1,47 @@
 import glob
 import os
+import shutil
 
 from .file import File
 
 
 class SideFileSection(list[File]):
+    def __init__(self, root_dir):
+        super(SideFileSection, self).__init__()
+        self.root_dir = root_dir
+
+    def copy_selected(self, index_tuple: tuple[int]):
+        for i, index in enumerate(index_tuple, 1):
+            file = self[index]
+            new_path = os.path.join(self.root_dir, file.relative_root)
+            os.makedirs(new_path, exist_ok=True)
+            shutil.copy2(
+                src=file.path,
+                dst=os.path.join(self.root_dir, file.relative_root, file.filename)
+            )
+
+
+class CentralFileSideSection(list[File]):
     pass
 
 
 class CentralFileSection:
     def __init__(self):
-        self._left_side = CentralFileSectionSide()
-        self._right_side = CentralFileSectionSide()
+        self.left_side = CentralFileSideSection()
+        self.right_side = CentralFileSideSection()
 
     def append_to_left(self, file: File):
-        self._left_side.append(file)
+        self.left_side.append(file)
 
     def append_to_right(self, file: File):
-        self._right_side.append(file)
+        self.right_side.append(file)
 
     def add_pair(self, left_file: File, right_file: File):
         self.append_to_left(left_file)
         self.append_to_right(right_file)
 
     def __str__(self):
-        return f"{[self._left_side, self._right_side]}"
-
-
-class CentralFileSectionSide(list[File]):
-    pass
+        return f"{[self.left_side, self.right_side]}"
 
 
 class FileManager:
@@ -48,15 +61,15 @@ class FileManager:
         self._right_section_file_table: dict[str, File] | None = None
 
     def scan_files(self):
-        self.left_section_files = SideFileSection()
-        self.right_section_files = SideFileSection()
-        self.central_section_files = CentralFileSection()
-
         left_dir = self.app.left_section.get_dir()
         right_dir = self.app.right_section.get_dir()
 
-        self._left_section_file_table = self.get_file_table(left_dir)
-        self._right_section_file_table = self.get_file_table(right_dir)
+        self.left_section_files = SideFileSection(left_dir)
+        self.right_section_files = SideFileSection(right_dir)
+        self.central_section_files = CentralFileSection()
+
+        self._left_section_file_table = self.get_file_table(self.left_section_files.root_dir)
+        self._right_section_file_table = self.get_file_table(self.right_section_files.root_dir)
 
         self.init_left_side()
         self.init_right_side()

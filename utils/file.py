@@ -12,18 +12,22 @@ class File:
 
         self.base_dir = base_dir
         self.path = path
-        self.relative_path = self._get_relative_path()
         self._edit_date = None
 
     @property
     def filename(self):
         return self.path.split("/")[-1]
 
-    def _get_relative_path(self):
+    @property
+    def relative_root(self):
+        return "/".join(self.relative_path.split("/")[:-1])
+
+    @property
+    def relative_path(self):
         return self.path[len(self.base_dir) + 1:]
 
     def get_visible_path(self):
-        split = 100
+        split = 50
         if len(self.relative_path) > split:
             paths = self.relative_path.split("/")
             first = paths.pop(0)

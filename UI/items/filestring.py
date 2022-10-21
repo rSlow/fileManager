@@ -65,7 +65,6 @@ class FileStringBlock(ttk.Frame):
     def __init__(self, *args, initial_dir: str | None = None, **kwargs):
         super(FileStringBlock, self).__init__(*args, **kwargs)
         self.directory_entry = DirEntry(master=self)
-        self.dir_buttons = ttk.Frame(master=self)
 
         if initial_dir is not None and os.path.isdir(initial_dir):
             self.set_dir_entry_value(initial_dir)
@@ -76,24 +75,22 @@ class FileStringBlock(ttk.Frame):
         self.grid_buttons()
 
     def _conf_grid_buttons(self):
-        self.dir_buttons.grid_columnconfigure(0, weight=1)
-        self.dir_buttons.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
     def grid_dir_label(self):
-        self.directory_entry.pack(fill=c.X)
+        self.directory_entry.grid(row=0, sticky=c.EW, columnspan=2)
 
     def grid_buttons(self):
         SetDirButton(
-            master=self.dir_buttons,
+            master=self,
             parent=self
-        ).grid(row=0, column=0, padx=self.pad, pady=self.pad, sticky=c.EW)
+        ).grid(row=1, column=0, padx=self.pad, pady=self.pad, sticky=c.EW)
 
         SetCurrentDirButton(
-            master=self.dir_buttons,
+            master=self,
             parent=self
-        ).grid(row=0, column=1, padx=self.pad, pady=self.pad, sticky=c.EW)
-
-        self.dir_buttons.pack(fill=c.X)
+        ).grid(row=1, column=1, padx=self.pad, pady=self.pad, sticky=c.EW)
 
     def set_dir_entry_value(self, text: str):
         self.directory_entry.delete(first=0, last=c.END)

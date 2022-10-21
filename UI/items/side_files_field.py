@@ -5,7 +5,7 @@ from utils.file import File
 
 
 class FileField(Frame):
-    def __init__(self, master):
+    def __init__(self, master, width: int = 50, height: int = 30):
         super(FileField, self).__init__(
             master=master,
             bg="white",
@@ -17,8 +17,8 @@ class FileField(Frame):
         self.scrollbar_y = Scrollbar(master=self, orient=c.VERTICAL)
         self.listbox = Listbox(
             master=self,
-            height=30,
-            width=80,
+            width=width,
+            height=height,
             xscrollcommand=self.scrollbar_x.set,
             yscrollcommand=self.scrollbar_y.set,
             selectmode=c.MULTIPLE,
@@ -45,6 +45,9 @@ class FileField(Frame):
 
         for file in files:
             self.append_file(file)
+
+    def get_selected(self) -> tuple[int]:
+        return self.listbox.curselection()
 
     def append_file(self, file: File):
         self.listbox.insert(c.END, file)

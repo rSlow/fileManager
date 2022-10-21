@@ -37,7 +37,8 @@ class SideButtonsBlock(ttk.Frame):
         )
         add_selected_button = Button(
             master=self,
-            text="Добавить выбранные"
+            text="Добавить выбранные",
+            command=self.parent.add_selected
         )
         add_missing_button = Button(
             master=self,
@@ -58,4 +59,3 @@ class SideButtonsBlock(ttk.Frame):
         add_missing_button.grid(row=1, column=1, sticky=c.EW, padx=self.pad, pady=self.pad)
         add_replacing_exiting_button.grid(row=2, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
         add_replacing_older_button.grid(row=3, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
-
