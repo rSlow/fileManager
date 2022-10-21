@@ -27,12 +27,12 @@ class SideButtonsBlock(ttk.Frame):
         select_all_button = Button(
             master=self,
             text="Выбрать все",
-            command=self.parent.file_field.select_all
+            command=self.parent.select_all
         )
         clear_selection_button = Button(
             master=self,
             text="Снять выделение",
-            command=self.parent.file_field.unselect_all
+            command=self.parent.unselect_all
 
         )
         add_selected_button = Button(
@@ -42,7 +42,8 @@ class SideButtonsBlock(ttk.Frame):
         )
         add_missing_button = Button(
             master=self,
-            text="Добавить только отсутствующие"
+            text="Добавить все отсутствующие",
+            command=self.parent.add_all_missing
         )
         add_replacing_exiting_button = Button(
             master=self,

@@ -1,7 +1,7 @@
-from tkinter import constants as c, ttk
+from tkinter import constants as c
 
 from utils.filemanager import SideFileSection
-from ..items.buttons_side_block import SideButtonsBlock
+from ..items.side_buttons_block import SideButtonsBlock
 from ..components.selected_label import SelectedLabel
 from ..items.side_files_field import FileField
 from ..items.filestring import FileStringBlock
@@ -46,6 +46,16 @@ class SideSection(BaseSection):
         self.file_field.clear()
         for file in file_section:
             self.file_field.append_file(file)
+
+    def add_all_missing(self):
+        self.select_all()
+        self.add_selected()
+
+    def select_all(self):
+        self.file_field.select_all()
+
+    def unselect_all(self):
+        self.file_field.unselect_all()
 
     def add_selected(self):
         selected_fields = self.file_field.get_selected()

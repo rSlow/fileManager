@@ -13,7 +13,7 @@ class App(Tk):
 
         self.set_filename("File Manager")
         self.filemanager = FileManager(app=self)
-        # self.resizable(False, False)
+        self.resizable(False, False)
 
         self.left_section = SideSection(
             master=self,
@@ -35,16 +35,6 @@ class App(Tk):
             header_text="Компьютер",
             initial_dir="/home/rslow/Рабочий стол/работа"
         )
-
-        for i in range(100):
-            self.central_section.left_list.insert(
-                c.END,
-                f"{-hash(f'{i}')}" * 4
-            )
-            self.central_section.right_list.insert(
-                c.END,
-                f"{-hash(f'{i*2}')}" * 4
-            )
 
         self._scan_button = Button(
             master=self,
