@@ -40,17 +40,11 @@ class FileField(Frame):
             selection = self.listbox.curselection()
         self.master.selected_label.set_value(len(selection))
 
-    def watch_files(self, files: list[File]):
-        self.clear()
-
-        for file in files:
-            self.append_file(file)
-
     def get_selected(self) -> tuple[int]:
         return self.listbox.curselection()
 
     def append_file(self, file: File):
-        self.listbox.insert(c.END, file)
+        self.listbox.insert(c.END, file.as_side)
 
     def clear(self):
         self.listbox.delete(0, c.END)

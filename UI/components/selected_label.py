@@ -2,10 +2,10 @@ from tkinter import ttk, font as _font
 
 
 class SelectedLabel(ttk.Label):
-    def __init__(self, *args, font=None, **kwargs):
+    def __init__(self, *args, font, **kwargs):
         super(SelectedLabel, self).__init__(
             *args,
-            font=font or _font.Font(size=12),
+            font=font,
             **kwargs
         )
         self.value = 0

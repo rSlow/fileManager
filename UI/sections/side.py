@@ -1,5 +1,6 @@
-from tkinter import constants as c
+from tkinter import constants as c, font as _font
 
+from utils.confirm_decorator import with_confirm
 from utils.filemanager import SideFileSection
 from ..items.side_buttons_block import SideButtonsBlock
 from ..components.selected_label import SelectedLabel
@@ -20,7 +21,7 @@ class SideSection(BaseSection):
 
         self.file_string = FileStringBlock(master=self, initial_dir=initial_dir)
         self.file_field = FileField(master=self)
-        self.selected_label = SelectedLabel(master=self)
+        self.selected_label = SelectedLabel(master=self, font=_font.Font(size=12))
         self.bottom_buttons = SideButtonsBlock(master=self, parent=self)
 
         self.pack_elements()
@@ -34,11 +35,6 @@ class SideSection(BaseSection):
         self.selected_label.grid(row=3, column=0, sticky=c.EW)
         self.bottom_buttons.grid(row=4, column=0, sticky=c.EW)
 
-        # self.file_string.pack(fill=c.X)
-        # self.file_field.pack(fill=c.BOTH, expand=True)
-        # self.selected_label.pack(fill=c.X)
-        # self.bottom_buttons.pack(fill=c.X)
-
     def get_dir(self):
         return self.file_string.get_directory()
 
@@ -47,6 +43,7 @@ class SideSection(BaseSection):
         for file in file_section:
             self.file_field.append_file(file)
 
+    @with_confirm(message="Добавляем все отсутствующие файлы?")
     def add_all_missing(self):
         self.select_all()
         self.add_selected()
@@ -57,6 +54,7 @@ class SideSection(BaseSection):
     def unselect_all(self):
         self.file_field.unselect_all()
 
+    @with_confirm(message="Добавляем выбранные элементы?")
     def add_selected(self):
         selected_fields = self.file_field.get_selected()
         filemanager = self.parent.filemanager

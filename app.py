@@ -1,4 +1,5 @@
-from tkinter import Tk, constants as c, ttk
+from tkinter import Tk, constants as c
+from tkinter.messagebox import showwarning
 
 from UI.components.button import Button
 from UI.sections.central import CentralSection
@@ -68,7 +69,10 @@ class App(Tk):
             self.right_section.place_new_files(right_section_files)
 
         else:
-            pass
+            showwarning(
+                title="Предупреждение",
+                message="Требуется выбрать обе директории!"
+            )
 
     def set_filename(self, filename: str):
         self.filename = filename

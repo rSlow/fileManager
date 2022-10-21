@@ -26,7 +26,17 @@ class File:
     def relative_path(self):
         return self.path[len(self.base_dir) + 1:]
 
-    def get_visible_path(self):
+    def is_real(self):
+        if not self.filename.startswith("~"):
+            return True
+        return False
+
+    @property
+    def as_center(self):
+        return self.filename
+
+    @property
+    def as_side(self):
         split = 50
         if len(self.relative_path) > split:
             paths = self.relative_path.split("/")
@@ -39,17 +49,6 @@ class File:
             return path
         else:
             return self.relative_path
-
-    def is_real(self):
-        if not self.filename.startswith("~"):
-            return True
-        return False
-
-    def __str__(self):
-        return self.get_visible_path()
-
-    def __repr__(self):
-        return self.__str__()
 
     @property
     def edit_date(self) -> datetime:

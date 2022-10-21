@@ -1,5 +1,4 @@
-from tkinter import ttk
-from tkinter import constants as c
+from tkinter import ttk, constants as c
 
 from ..components.button import Button
 
