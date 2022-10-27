@@ -2,7 +2,7 @@ from functools import wraps
 from tkinter.messagebox import askokcancel
 
 
-def with_confirm(message, title=None):
+def with_confirm(message: str, title: str = None):
     if title is None:
         title = "Подтверждение"
 

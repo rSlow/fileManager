@@ -1,8 +1,6 @@
 from tkinter import Listbox, Frame, Scrollbar
 from tkinter import constants as c
 
-from utils.file import File
-
 
 class FileField(Frame):
     def __init__(self, master, width: int = 50, height: int = 30):
@@ -43,8 +41,8 @@ class FileField(Frame):
     def get_selected(self) -> tuple[int]:
         return self.listbox.curselection()
 
-    def append_file(self, file: File):
-        self.listbox.insert(c.END, file.as_side)
+    def append_file(self, file_alias: str):
+        self.listbox.insert(c.END, file_alias)
 
     def clear(self):
         self.listbox.delete(0, c.END)

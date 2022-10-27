@@ -1,4 +1,4 @@
-from tkinter import constants as c, font as _font
+from tkinter import constants as c
 
 from utils.confirm_decorator import with_confirm
 from utils.filemanager import SideFileSection
@@ -21,7 +21,7 @@ class SideSection(BaseSection):
 
         self.file_string = FileStringBlock(master=self, initial_dir=initial_dir)
         self.file_field = FileField(master=self)
-        self.selected_label = SelectedLabel(master=self, font=_font.Font(size=12))
+        self.selected_label = SelectedLabel(master=self, font_size=12)
         self.bottom_buttons = SideButtonsBlock(master=self, parent=self)
 
         self.pack_elements()
@@ -41,7 +41,7 @@ class SideSection(BaseSection):
     def place_new_files(self, file_section: SideFileSection):
         self.file_field.clear()
         for file in file_section:
-            self.file_field.append_file(file)
+            self.file_field.append_file(file.as_side)
 
     @with_confirm(message="Добавляем все отсутствующие файлы?")
     def add_all_missing(self):

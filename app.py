@@ -4,25 +4,27 @@ from tkinter.messagebox import showwarning
 from UI.components.button import Button
 from UI.sections.central import CentralSection
 from UI.sections.side import SideSection
+from configfile import Config
 from utils.filemanager import FileManager
 
 
 class App(Tk):
     def __init__(self, *args, **kwargs):
         super(App, self).__init__(*args, **kwargs)
-        self.filename = None
 
-        self.set_filename("File Manager")
-        self.filemanager = FileManager(app=self)
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.title("File Manager")
         self.resizable(False, False)
+
+        self.configuration = Config.load()
+        self.filemanager = FileManager(app=self)
 
         self.left_section = SideSection(
             master=self,
             parent=self,
             side=c.LEFT,
             header_text="Флешка",
-            initial_dir="/home/rslow/Рабочий стол/копия"
-            # initial_dir="/home/rslow/Рабочий стол/флешка рабочая"
+            initial_dir=self.configuration.left_dir
         )
         self.central_section = CentralSection(
             master=self,
@@ -34,13 +36,13 @@ class App(Tk):
             parent=self,
             side=c.RIGHT,
             header_text="Компьютер",
-            initial_dir="/home/rslow/Рабочий стол/работа"
+            initial_dir=self.configuration.right_dir
         )
 
         self._scan_button = Button(
             master=self,
             text="Сканировать",
-            command=lambda: self.watch_files()
+            command=self.watch_files
         )
 
         self.pack_sections()
@@ -58,6 +60,10 @@ class App(Tk):
 
     def watch_files(self):
         if self.left_section.get_dir() and self.right_section.get_dir():
+            self.left_section.unselect_all()
+            self.central_section.unselect_all()
+            self.right_section.unselect_all()
+
             self.filemanager.scan_files()
 
             left_sections_files = self.filemanager.left_section_files
@@ -74,9 +80,17 @@ class App(Tk):
                 message="Требуется выбрать обе директории!"
             )
 
-    def set_filename(self, filename: str):
-        self.filename = filename
-        self.title(self.filename)
+    def set_configuration(self):
+        if left_dir := self.left_section.get_dir():
+            self.configuration.left_dir = left_dir
+        if right_dir := self.right_section.get_dir():
+            self.configuration.right_dir = right_dir
+
+        self.configuration.save()
+
+    def on_close(self):
+        self.set_configuration()
+        self.destroy()
 
 
 root = App()

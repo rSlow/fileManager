@@ -1,19 +1,54 @@
 import tkinter as tk
-from tkinter import constants as c, font as _font
+from tkinter import constants as c
 
 from ..components.selected_label import SelectedLabel
 from ..items.central_buttons_block import CentralButtonsBlock
 from ..sections.base import BaseSection
-from utils.file import File
 from utils.filemanager import CentralFileSection
 
 
 class ModifiedListBox(tk.Listbox):
-    def append_file(self, file: File):
-        self.insert(c.END, file.as_center)
+    NEW = "[NEW]"
+
+    def __init__(self, selected_label, side, **kwargs):
+        super(ModifiedListBox, self).__init__(**kwargs)
+        self.selected_label = selected_label
+        self.side = side
+        self.bind("<<ListboxSelect>>", self.update_label_value)
+
+    def append_file_alias(self, filename_alias: str):
+        self.insert(c.END, filename_alias)
 
     def clear(self):
         self.delete(0, c.END)
+
+    def update_label_value(self, event=None):
+        if event:
+            selection = event.widget.curselection()
+        else:
+            selection = self.curselection()
+        self.selected_label.set_value(len(selection))
+
+    def unselect_all(self):
+        self.selection_clear(0, c.END)
+        self.update_label_value()
+
+    def get_all(self) -> list[str]:
+        return self.get(0, c.END)
+
+    def get_old_file_indexes(self):
+        files = self.get_all()
+        old_file_indexes_list = []
+        for index, file in enumerate(files):
+            if not file.startswith(self.NEW):
+                old_file_indexes_list.append(index)
+
+    def get_new_file_indexes(self):
+        files = self.get_all()
+        new_file_indexes_list = []
+        for index, file in enumerate(files):
+            if not file.startswith(self.NEW):
+                new_file_indexes_list.append(index)
 
 
 class DoubleListBox(tk.Frame):
@@ -28,30 +63,34 @@ class DoubleListBox(tk.Frame):
         self.scrollbar_y = tk.Scrollbar(self, orient=c.VERTICAL)
         self.scrollbar_x = tk.Scrollbar(self, orient=c.HORIZONTAL)
 
-        self.left_listbox = ModifiedListBox(
-            master=self,
-            yscrollcommand=self._scroll_left_y,
-            xscrollcommand=self._scroll_left_x,
-            selectmode=c.MULTIPLE,
-            height=height,
-            width=width
-        )
-        self.right_listbox = ModifiedListBox(
-            master=self,
-            yscrollcommand=self._scroll_right_y,
-            xscrollcommand=self._scroll_right_x,
-            selectmode=c.MULTIPLE,
-            height=height,
-            width=width
-        )
-
         self.left_selected_label = SelectedLabel(
             master=self,
-            font=_font.Font(size=10)
+            font_size=10
         )
         self.right_selected_label = SelectedLabel(
             master=self,
-            font=_font.Font(size=10)
+            font_size=10
+        )
+
+        self.left_listbox = ModifiedListBox(
+            master=self,
+            selected_label=self.left_selected_label,
+            xscrollcommand=self._scroll_left_x,
+            yscrollcommand=self._scroll_left_y,
+            selectmode=c.MULTIPLE,
+            height=height,
+            width=width,
+            side=c.LEFT
+        )
+        self.right_listbox = ModifiedListBox(
+            master=self,
+            selected_label=self.right_selected_label,
+            xscrollcommand=self._scroll_right_x,
+            yscrollcommand=self._scroll_right_y,
+            selectmode=c.MULTIPLE,
+            height=height,
+            width=width,
+            side=c.RIGHT
         )
 
         self._config_scrollbars()
@@ -95,11 +134,15 @@ class DoubleListBox(tk.Frame):
         self.left_listbox.clear()
         self.right_listbox.clear()
 
-    def append_left_file(self, file: File):
-        self.left_listbox.append_file(file)
+    def append_left_file_alias(self, file_alias: str):
+        self.left_listbox.append_file_alias(file_alias)
 
-    def append_right_file(self, file: File):
-        self.right_listbox.append_file(file)
+    def append_right_file_alias(self, file_alias: str):
+        self.right_listbox.append_file_alias(file_alias)
+
+    def update_label_values(self):
+        self.left_listbox.update_label_value()
+        self.right_listbox.update_label_value()
 
     def _grid_elements(self):
         self.left_listbox.grid(row=1, column=0, sticky=c.NSEW)
@@ -108,6 +151,12 @@ class DoubleListBox(tk.Frame):
         self.scrollbar_x.grid(row=2, column=0, sticky=c.EW, columnspan=3)
         self.left_selected_label.grid(row=3, column=0, sticky=c.NSEW)
         self.right_selected_label.grid(row=3, column=1, sticky=c.NSEW)
+
+    def unselect_all(self):
+        self.left_listbox.unselect_all()
+        self.right_listbox.unselect_all()
+
+    # def
 
 
 class CentralSection(BaseSection):
@@ -137,11 +186,20 @@ class CentralSection(BaseSection):
         self.file_frame.grid(row=1, column=0, sticky=c.NSEW)
         self.buttons_block.grid(row=2, column=0, sticky=c.NSEW, )
 
+    def unselect_all(self):
+        self.file_frame.unselect_all()
+
     def place_new_files(self, section_files: CentralFileSection):
         self.file_frame.clear()
 
-        for file in section_files.left_side:
-            self.file_frame.append_left_file(file)
+        for left_file, right_file in zip(
+                section_files.left_side,
+                section_files.right_side
+        ):
+            if left_file.edit_date > right_file.edit_date:
+                self.file_frame.append_left_file_alias(left_file.as_center_new)
+                self.file_frame.append_right_file_alias(right_file.as_center_old)
 
-        for file in section_files.right_side:
-            self.file_frame.append_right_file(file)
+            elif left_file.edit_date < right_file.edit_date:
+                self.file_frame.append_left_file_alias(left_file.as_center_old)
+                self.file_frame.append_right_file_alias(right_file.as_center_new)
