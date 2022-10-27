@@ -11,22 +11,22 @@ class CentralButtonsBlockColumn(ttk.Frame):
         self.replace_to_new_button = Button(
             master=self,
             text="Заменить все старые",
-            command=self.listbox.get_old_file_indexes
+            command=self.listbox.copy_old_files
         )
         self.replace_to_old_button = Button(
             master=self,
             text="Заменить все новые",
-            command=self.listbox.get_new_file_indexes
+            command=self.listbox.copy_new_files
         )
         self.replace_all_button = Button(
             master=self,
             text="Заменить все",
-            command=...
+            command=self.listbox.copy_all
         )
         self.replace_selected_button = Button(
             master=self,
             text="Заменить выбранные",
-            command=...
+            command=self.listbox.copy_selected
         )
 
         self._grid_buttons()

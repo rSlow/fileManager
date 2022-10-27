@@ -22,6 +22,10 @@ class ModifiedListBox(tk.Listbox):
     def clear(self):
         self.delete(0, c.END)
 
+    def unselect_all(self):
+        self.selection_clear(0, c.END)
+        self.update_label_value()
+
     def update_label_value(self, event=None):
         if event:
             selection = event.widget.curselection()
@@ -29,26 +33,43 @@ class ModifiedListBox(tk.Listbox):
             selection = self.curselection()
         self.selected_label.set_value(len(selection))
 
-    def unselect_all(self):
-        self.selection_clear(0, c.END)
-        self.update_label_value()
-
-    def get_all(self) -> list[str]:
+    def get_all_filenames(self) -> list[str]:
         return self.get(0, c.END)
 
-    def get_old_file_indexes(self):
-        files = self.get_all()
-        old_file_indexes_list = []
-        for index, file in enumerate(files):
-            if not file.startswith(self.NEW):
-                old_file_indexes_list.append(index)
+    @property
+    def filemanager_central_section(self):
+        app = self.master.master.master
+        if hasattr(app, "filemanager"):
+            return app.filemanager
 
-    def get_new_file_indexes(self):
-        files = self.get_all()
+    def copy_files(self, indexes: list[int] | tuple[int]):
+        self.filemanager_central_section.copy_selected_to_side(
+            indexes=indexes,
+            to_side=self.side
+        )
+
+    def copy_selected(self):
+        selected_indexes = self.curselection()
+        self.copy_files(selected_indexes)
+
+    def copy_all(self):
+        self.copy_files([*range(self.size())])
+
+    def copy_old_files(self):
+        files = self.get_all_filenames()
+        old_file_indexes_list = []
+        for index, filename in enumerate(files):
+            if not filename.startswith(self.NEW):
+                old_file_indexes_list.append(index)
+        self.copy_files(old_file_indexes_list)
+
+    def copy_new_files(self):
+        files = self.get_all_filenames()
         new_file_indexes_list = []
-        for index, file in enumerate(files):
-            if not file.startswith(self.NEW):
+        for index, filename in enumerate(files):
+            if filename.startswith(self.NEW):
                 new_file_indexes_list.append(index)
+        self.copy_files(new_file_indexes_list)
 
 
 class DoubleListBox(tk.Frame):
@@ -155,8 +176,6 @@ class DoubleListBox(tk.Frame):
     def unselect_all(self):
         self.left_listbox.unselect_all()
         self.right_listbox.unselect_all()
-
-    # def
 
 
 class CentralSection(BaseSection):

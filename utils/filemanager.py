@@ -1,6 +1,7 @@
 import glob
 import os
 import shutil
+from tkinter import constants as c
 
 from .file import File
 
@@ -11,7 +12,7 @@ class SideFileSection(list[File]):
         self.root_dir = root_dir
 
     def copy_selected(self, index_tuple: tuple[int]):
-        for i, index in enumerate(index_tuple, 1):
+        for index in index_tuple:
             file = self[index]
             new_path = os.path.join(self.root_dir, file.relative_root)
             os.makedirs(new_path, exist_ok=True)
@@ -41,7 +42,27 @@ class CentralFileSection:
         self.append_to_right(right_file)
 
     def __str__(self):
-        return f"{[self.left_side, self.right_side]}"
+        return f"[{self.left_side}, {self.right_side}]"
+
+    def copy_selected_to_side(self, indexes: list[int] | tuple[int], to_side: str):
+        """to_side - copy in this side from another side"""
+        match to_side:
+            case c.LEFT:
+                dst_section = self.left_side
+                src_section = self.right_side
+            case c.RIGHT:
+                dst_section = self.right_side
+                src_section = self.left_side
+            case _:
+                raise AttributeError(f"section type is not {c.LEFT} or {c.RIGHT}")
+
+        for index in indexes:
+            src_file = src_section[index]
+            dst_file = dst_section[index]
+            shutil.copy2(
+                src=src_file.path,
+                dst=dst_file.path
+            )
 
 
 class FileManager:
@@ -65,8 +86,8 @@ class FileManager:
         right_dir = self.app.right_section.get_dir()
 
         self.left_section_files = SideFileSection(left_dir)
-        self.right_section_files = SideFileSection(right_dir)
         self.central_section_files = CentralFileSection()
+        self.right_section_files = SideFileSection(right_dir)
 
         self._left_section_file_table = self.get_file_table(self.left_section_files.root_dir)
         self._right_section_file_table = self.get_file_table(self.right_section_files.root_dir)
@@ -82,6 +103,7 @@ class FileManager:
             if right_file is None:
                 if left_file.is_real():
                     self.right_section_files.append(left_file)
+            # auto init central section
             elif left_file.edit_date != right_file.edit_date:
                 self.central_section_files.add_pair(left_file, right_file)
 

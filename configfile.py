@@ -1,5 +1,5 @@
 import os.path
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields as _fields
 import json
 
 
@@ -8,21 +8,23 @@ class Config:
     left_dir: str = os.getcwd()
     right_dir: str = os.getcwd()
 
-    __file = "./.config"
+    __filename = ".filemanager.config"
 
     @classmethod
     def load(cls):
-        if os.path.isfile(cls.__file):
-            with open(cls.__file, "r") as file:
+        if os.path.isfile(cls.__filename):
+            with open(cls.__filename, "r") as file:
                 try:
                     data: dict = json.load(file)
                 except json.decoder.JSONDecodeError:
                     return cls()
 
-            annotations = cls.__annotations__
-            for key, value in data.items():
-                if key in annotations and annotations[key] != type(value):
-                    return cls()
+            fields = cls.__annotations__.keys()
+            saved_fields = [*data.keys()]
+            for key in saved_fields:
+                if key not in fields:
+                    del data[key]
+
             try:
                 return cls(**data)
             except TypeError:
@@ -33,6 +35,6 @@ class Config:
             return config
 
     def save(self):
-        config_json = {field.name: getattr(self, field.name) for field in fields(self)}
-        with open(self.__file, "w") as file:
+        config_json = {field.name: getattr(self, field.name) for field in _fields(self)}
+        with open(self.__filename, "w") as file:
             json.dump(config_json, file, indent=2, ensure_ascii=False)

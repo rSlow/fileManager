@@ -44,7 +44,7 @@ class File:
 
     @property
     def as_side(self):
-        return f"{self.filename} ||| ({self.relative_root})"
+        return f"{self.filename} ||| {self.relative_root}"
         # split = 50
         # if len(self.relative_path) > split:
         #     paths = self.relative_path.split("/")
