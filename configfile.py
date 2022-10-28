@@ -1,9 +1,6 @@
 import os.path
 from dataclasses import dataclass, fields as _fields
 import json
-from pprint import pprint
-
-from utils.messageboxes import copy_error
 
 confirmation_env = "CONFIRM_FLAG"
 
@@ -30,9 +27,6 @@ class Config:
                         del data[field]
                 config = cls(**data)
         except (FileNotFoundError, json.decoder.JSONDecodeError, TypeError):
-            config = cls()
-        except Exception as ex:
-            copy_error(ex.args[0])
             config = cls()
         finally:
             os.environ.setdefault(confirmation_env, str(int(config.confirmation)))

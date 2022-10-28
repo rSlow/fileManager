@@ -6,7 +6,7 @@ from UI.sections.central import CentralSection
 from UI.sections.side import SideSection
 from configfile import Config
 from utils.filemanager import FileManager
-from utils.messageboxes import with_confirm, sync_not_needed
+from utils.messageboxes import with_confirm
 
 
 class App(Tk):
@@ -78,8 +78,6 @@ class App(Tk):
             self.right_section.unselect_all()
 
             self.filemanager.scan_files()
-            if self.filemanager.empty:
-                sync_not_needed()
 
             left_sections_files = self.filemanager.left_section_files
             central_section_files = self.filemanager.central_section_files
