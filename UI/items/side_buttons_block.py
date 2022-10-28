@@ -1,6 +1,7 @@
 from tkinter import ttk, constants as c
 
 from UI.components.button import Button
+from utils.messageboxes import with_confirm
 
 
 class SideButtonsBlock(ttk.Frame):
@@ -38,20 +39,23 @@ class SideButtonsBlock(ttk.Frame):
         add_selected_button = Button(
             master=self,
             text="Добавить выбранные",
-            command=self.parent.add_selected
+            command=with_confirm(message="Добавляем выбранные элементы?")(self.parent.add_selected)
         )
         add_missing_button = Button(
             master=self,
             text="Добавить все отсутствующие",
-            command=self.parent.add_all_missing
+            command=with_confirm(message="Добавляем все отсутствующие файлы?")(self.parent.add_all_missing)
         )
         add_replacing_exiting_button = Button(
             master=self,
-            text="Добавить все, заменяя все конфликтные"
+            text="Добавить все и заменить все конфликтные",
+            command=self.parent.add_all_with_replacing_all
         )
         add_replacing_older_button = Button(
             master=self,
-            text="Добавить все, заменяя старые конфликтные"
+            text="Добавить все и заменить старые",
+            command=with_confirm(message="Добавляем все отсутствующие файлы и заменяем старые?")(
+                self.parent.add_all_with_replacing_old)
         )
 
         select_all_button.grid(row=0, column=0, sticky=c.EW, padx=self.pad, pady=self.pad)

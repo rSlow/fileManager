@@ -6,6 +6,7 @@ from UI.sections.central import CentralSection
 from UI.sections.side import SideSection
 from configfile import Config
 from utils.filemanager import FileManager
+from utils.messageboxes import with_confirm, sync_not_needed
 
 
 class App(Tk):
@@ -39,13 +40,24 @@ class App(Tk):
             initial_dir=self.configuration.right_dir
         )
 
-        self._scan_button = Button(
+        self.scan_button = Button(
             master=self,
             text="Сканировать",
             command=self.watch_files
         )
+        self.update_button = Button(
+            master=self,
+            text="Синхронизировать с заменой старых файлов на новые",
+            command=self.synchronize
+        )
 
         self.pack_sections()
+
+    @with_confirm(message="Синхронизировать файлы?")
+    def synchronize(self):
+        self.left_section.add_all_with_replacing_old()
+        self.right_section.add_all_with_replacing_old()
+        self.watch_files()
 
     def pack_sections(self):
         self.grid_columnconfigure(0, weight=1)
@@ -56,7 +68,8 @@ class App(Tk):
         self.central_section.grid(row=0, column=1, sticky=c.NSEW)
         self.right_section.grid(row=0, column=2, sticky=c.EW)
 
-        self._scan_button.grid(row=1, column=0, columnspan=3, sticky=c.EW, pady=5, padx=5)
+        self.scan_button.grid(row=1, column=0, columnspan=3, sticky=c.EW, pady=2, padx=5)
+        self.update_button.grid(row=2, column=0, columnspan=3, sticky=c.EW, pady=2, padx=5)
 
     def watch_files(self):
         if self.left_section.get_dir() and self.right_section.get_dir():
@@ -65,6 +78,8 @@ class App(Tk):
             self.right_section.unselect_all()
 
             self.filemanager.scan_files()
+            if self.filemanager.empty:
+                sync_not_needed()
 
             left_sections_files = self.filemanager.left_section_files
             central_section_files = self.filemanager.central_section_files

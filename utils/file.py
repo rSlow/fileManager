@@ -1,6 +1,7 @@
 import os.path
 from datetime import datetime, timedelta
 
+
 class File:
     NEW = "[NEW]"
 
@@ -34,13 +35,11 @@ class File:
 
     @property
     def as_center_old(self):
-        # return self.filename
-        return self.path
+        return self.as_side
 
     @property
     def as_center_new(self):
-        # return f"{self.NEW} {self.filename}"
-        return f"{self.NEW} " + self.path
+        return f"{self.NEW} " + self.as_side
 
     @property
     def as_side(self):
@@ -62,8 +61,8 @@ class File:
     def edit_date(self) -> datetime:
         if self._edit_date is None:
             ts = os.path.getmtime(self.path)
-            edit_date = datetime.fromtimestamp(ts)
-            offset = timedelta(microseconds=edit_date.microsecond) + timedelta(seconds=edit_date.second)
+            edit_date = FileDatetime.fromtimestamp(ts)
+            offset = timedelta(microseconds=edit_date.microsecond)
             self._edit_date = edit_date - offset
         return self._edit_date
 
@@ -74,3 +73,15 @@ class File:
         if other.relative_path == self.relative_path:
             return True
         return False
+
+
+class FileDatetime(datetime):
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            result = super(FileDatetime, self).__eq__(other)
+            if not result and abs(self.second - other.second) <= 1:
+                return True
+            return result
+
+    def __ne__(self, other):
+        return not self == other

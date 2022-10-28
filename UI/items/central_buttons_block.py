@@ -1,5 +1,6 @@
 from tkinter import ttk, constants as c
 
+from utils.messageboxes import with_confirm
 from ..components.button import Button
 
 
@@ -11,22 +12,22 @@ class CentralButtonsBlockColumn(ttk.Frame):
         self.replace_to_new_button = Button(
             master=self,
             text="Заменить все старые",
-            command=self.listbox.copy_old_files
+            command=with_confirm(message="Обновляем все старые файлы на новые?")(self.listbox.replace_old_files_by_new)
         )
         self.replace_to_old_button = Button(
             master=self,
             text="Заменить все новые",
-            command=self.listbox.copy_new_files
+            command=self.listbox.replace_new_files_by_old
         )
         self.replace_all_button = Button(
             master=self,
             text="Заменить все",
-            command=self.listbox.copy_all
+            command=self.listbox.replace_all
         )
         self.replace_selected_button = Button(
             master=self,
             text="Заменить выбранные",
-            command=self.listbox.copy_selected
+            command=with_confirm(message="Обновляем выбранные файлы?")(self.listbox.replace_selected)
         )
 
         self._grid_buttons()

@@ -1,13 +1,13 @@
 from tkinter import constants as c
 
-from utils.confirm_decorator import with_confirm
+from utils.messageboxes import copy_error, with_confirm
 from utils.filemanager import SideFileSection
+from ..exceptions import NotScannedError
 from ..items.side_buttons_block import SideButtonsBlock
 from ..components.selected_label import SelectedLabel
 from ..items.side_files_field import FileField
 from ..items.filestring import FileStringBlock
 from .base import BaseSection
-from tkinter.messagebox import showerror
 
 
 class SideSection(BaseSection):
@@ -43,10 +43,20 @@ class SideSection(BaseSection):
         for file in file_section:
             self.file_field.append_file(file.as_side)
 
-    @with_confirm(message="Добавляем все отсутствующие файлы?")
     def add_all_missing(self):
         self.select_all()
         self.add_selected()
+
+    @with_confirm(message="Добавляем все отсутствующие файлы и заменяем все конфликтные?")
+    def add_all_with_replacing_all(self):
+        self.add_all_missing()
+        central_side = self.parent.central_section.file_frame.get_side(side=self.side)
+        central_side.replace_all()
+
+    def add_all_with_replacing_old(self):
+        self.add_all_missing()
+        central_side = self.parent.central_section.file_frame.get_side(side=self.side)
+        central_side.replace_old_files_by_new()
 
     def select_all(self):
         self.file_field.select_all()
@@ -54,7 +64,6 @@ class SideSection(BaseSection):
     def unselect_all(self):
         self.file_field.unselect_all()
 
-    @with_confirm(message="Добавляем выбранные элементы?")
     def add_selected(self):
         selected_fields = self.file_field.get_selected()
         filemanager = self.parent.filemanager
@@ -65,14 +74,12 @@ class SideSection(BaseSection):
                 section_files = filemanager.right_section_files
             case _:
                 raise AttributeError(f"section type is not {c.LEFT} or {c.RIGHT}")
-
-        try:
-            section_files.copy_selected(selected_fields)
-        except Exception as ex:
-            showerror(
-                title="Ошибка копирования",
-                message=f"{ex.args}"
-            )
-        finally:
-            self.parent.watch_files()
-            self.selected_label.set_value(0)
+        if section_files is None:
+            raise NotScannedError
+        else:
+            try:
+                section_files.copy_selected(selected_fields)
+            except Exception as ex:
+                copy_error(ex.args[0])
+            finally:
+                self.selected_label.set_value(0)

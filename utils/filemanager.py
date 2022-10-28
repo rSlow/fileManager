@@ -64,6 +64,11 @@ class CentralFileSection:
                 dst=dst_file.path
             )
 
+    def __bool__(self):
+        if self.left_side and self.right_side:
+            return True
+        return False
+
 
 class FileManager:
     def __init__(self, app):
@@ -98,20 +103,18 @@ class FileManager:
     def init_right_side(self):
         for path, left_file in self._left_section_file_table.items():
             right_file = self._right_section_file_table.get(path, None)
-
-            # check to add in central side
             if right_file is None:
                 if left_file.is_real():
                     self.right_section_files.append(left_file)
-            # auto init central section
-            elif left_file.edit_date != right_file.edit_date:
-                self.central_section_files.add_pair(left_file, right_file)
 
     def init_left_side(self):
         for path, right_file in self._right_section_file_table.items():
             left_file = self._left_section_file_table.get(path, None)
             if not left_file and right_file.is_real():
                 self.left_section_files.append(right_file)
+            # auto init central section
+            elif left_file.edit_date != right_file.edit_date:
+                self.central_section_files.add_pair(left_file, right_file)
 
     @staticmethod
     def get_file_table(directory: str):
@@ -123,3 +126,13 @@ class FileManager:
                     file = File(base_dir=directory, path=path)
                     files[file.relative_path] = file
         return files
+
+    @property
+    def empty(self):
+        if all((
+                not self.left_section_files,
+                not self.right_section_files,
+                not self.central_section_files
+        )):
+            return True
+        return False

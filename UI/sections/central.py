@@ -1,7 +1,11 @@
 import tkinter as tk
 from tkinter import constants as c
 
+from utils.messageboxes import with_confirm
+
+from utils.messageboxes import copy_error
 from ..components.selected_label import SelectedLabel
+from ..exceptions import NotScannedError
 from ..items.central_buttons_block import CentralButtonsBlock
 from ..sections.base import BaseSection
 from utils.filemanager import CentralFileSection
@@ -22,54 +26,80 @@ class ModifiedListBox(tk.Listbox):
     def clear(self):
         self.delete(0, c.END)
 
+    def select_all(self):
+        self.selection_set(0, c.END)
+        self.update_label_value()
+
     def unselect_all(self):
         self.selection_clear(0, c.END)
         self.update_label_value()
 
-    def update_label_value(self, event=None):
+    def update_label_value(self, event=None, value=None):
         if event:
             selection = event.widget.curselection()
         else:
             selection = self.curselection()
-        self.selected_label.set_value(len(selection))
+
+        if value is None:
+            _value = len(selection)
+        else:
+            _value = value
+
+        self.selected_label.set_value(_value)
 
     def get_all_filenames(self) -> list[str]:
         return self.get(0, c.END)
 
     @property
+    def app(self):
+        return self.master.master.master
+
+    @property
     def filemanager_central_section(self):
-        app = self.master.master.master
+        app = self.app
         if hasattr(app, "filemanager"):
-            return app.filemanager
+            return app.filemanager.central_section_files
 
     def copy_files(self, indexes: list[int] | tuple[int]):
-        self.filemanager_central_section.copy_selected_to_side(
-            indexes=indexes,
-            to_side=self.side
-        )
+        if self.filemanager_central_section is None:
+            raise NotScannedError
+        else:
+            try:
+                self.filemanager_central_section.copy_selected_to_side(
+                    indexes=indexes,
+                    to_side=self.side
+                )
+            except Exception as ex:
+                copy_error(ex.args[0])
+            finally:
+                self.update_label_value(value=0)
+                self.app.watch_files()
 
-    def copy_selected(self):
+    def replace_selected(self):
         selected_indexes = self.curselection()
         self.copy_files(selected_indexes)
 
-    def copy_all(self):
-        self.copy_files([*range(self.size())])
+    @with_confirm(message="Обновляем все файлы?")
+    def replace_all(self):
+        self.select_all()
+        self.replace_selected()
 
-    def copy_old_files(self):
+    def replace_old_files_by_new(self):
+        self.unselect_all()
         files = self.get_all_filenames()
-        old_file_indexes_list = []
         for index, filename in enumerate(files):
             if not filename.startswith(self.NEW):
-                old_file_indexes_list.append(index)
-        self.copy_files(old_file_indexes_list)
+                self.selection_set(index)
+        self.replace_selected()
 
-    def copy_new_files(self):
+    @with_confirm(message="Обновляем все новые файлы на старые?")
+    def replace_new_files_by_old(self):
+        self.unselect_all()
         files = self.get_all_filenames()
-        new_file_indexes_list = []
         for index, filename in enumerate(files):
             if filename.startswith(self.NEW):
-                new_file_indexes_list.append(index)
-        self.copy_files(new_file_indexes_list)
+                self.selection_set(index)
+        self.replace_selected()
 
 
 class DoubleListBox(tk.Frame):
@@ -120,6 +150,15 @@ class DoubleListBox(tk.Frame):
     def _config_scrollbars(self):
         self.scrollbar_y.config(command=self._lists_yview)
         self.scrollbar_x.config(command=self._lists_xview)
+
+    def get_side(self, side):
+        match side:
+            case c.LEFT:
+                return self.left_listbox
+            case c.RIGHT:
+                return self.right_listbox
+            case _:
+                raise AttributeError(f"section type is not {c.LEFT} or {c.RIGHT}")
 
     # Y-view
     def _scroll_left_y(self, start, end):

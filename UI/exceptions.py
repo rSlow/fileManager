@@ -1,0 +1,2 @@
+class NotScannedError(FileNotFoundError):
+    pass

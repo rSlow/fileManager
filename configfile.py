@@ -1,36 +1,41 @@
 import os.path
 from dataclasses import dataclass, fields as _fields
 import json
+from pprint import pprint
+
+from utils.messageboxes import copy_error
+
+confirmation_env = "CONFIRM_FLAG"
 
 
 @dataclass
 class Config:
     left_dir: str = os.getcwd()
     right_dir: str = os.getcwd()
+    confirmation: bool = True
+    auto_scan: bool = False
 
     __filename = ".filemanager.config"
 
     @classmethod
-    def load(cls):
-        if os.path.isfile(cls.__filename):
+    def load(cls) -> "Config":
+        config = None
+        try:
             with open(cls.__filename, "r") as file:
-                try:
-                    data: dict = json.load(file)
-                except json.decoder.JSONDecodeError:
-                    return cls()
-
-            fields = cls.__annotations__.keys()
-            saved_fields = [*data.keys()]
-            for key in saved_fields:
-                if key not in fields:
-                    del data[key]
-
-            try:
-                return cls(**data)
-            except TypeError:
-                return cls()
-        else:
+                data: dict = json.load(file)
+                fields = [f.name for f in _fields(cls)]
+                saved_fields = [*data.keys()]
+                for field in saved_fields:
+                    if field not in fields:
+                        del data[field]
+                config = cls(**data)
+        except (FileNotFoundError, json.decoder.JSONDecodeError, TypeError):
             config = cls()
+        except Exception as ex:
+            copy_error(ex.args[0])
+            config = cls()
+        finally:
+            os.environ.setdefault(confirmation_env, str(int(config.confirmation)))
             config.save()
             return config
 
