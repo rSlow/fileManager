@@ -18,11 +18,11 @@ class File:
 
     @property
     def filename(self):
-        return self.path.split("/")[-1]
+        return os.path.split(self.path)[1]
 
     @property
     def relative_root(self):
-        return "/".join(self.relative_path.split("/")[:-1])
+        return os.path.split(self.relative_path)[0]
 
     @property
     def relative_path(self):
@@ -44,18 +44,18 @@ class File:
     @property
     def as_side(self):
         return f"{self.filename} ||| {self.relative_root}"
-        # split = 50
-        # if len(self.relative_path) > split:
-        #     paths = self.relative_path.split("/")
-        #     first = paths.pop(0)
-        #     file = paths.pop(len(paths) - 1)
-        #     while len(path := f"{first}/...{'/' * (len(paths) > 0)}{'/'.join(paths)}/{file}") > split:
-        #         if len(paths) == 0:
-        #             break
-        #         paths.pop(0)
-        #     return path
-        # else:
-        #     return self.relative_path
+            # split = 50
+            # if len(self.relative_path) > split:
+            #     paths = self.relative_path.split("/")
+            #     first = paths.pop(0)
+            #     file = paths.pop(len(paths) - 1)
+            #     while len(path := f"{first}/...{'/' * (len(paths) > 0)}{'/'.join(paths)}/{file}") > split:
+            #         if len(paths) == 0:
+            #             break
+            #         paths.pop(0)
+            #     return path
+            # else:
+            #     return self.relative_path
 
     @property
     def edit_date(self) -> datetime:

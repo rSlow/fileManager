@@ -1,4 +1,5 @@
 import os.path
+import sys
 from dataclasses import dataclass, fields as _fields
 import json
 
@@ -16,7 +17,9 @@ class Config:
 
     @classmethod
     def load(cls) -> "Config":
+        cls._unhide_config()
         config = None
+
         try:
             with open(cls.__filename, "r") as file:
                 data: dict = json.load(file)
@@ -35,5 +38,21 @@ class Config:
 
     def save(self):
         config_json = {field.name: getattr(self, field.name) for field in _fields(self)}
-        with open(self.__filename, "w") as file:
-            json.dump(config_json, file, indent=2, ensure_ascii=False)
+        try:
+            with open(self.__filename, "w") as file:
+                json.dump(config_json, file, indent=2, ensure_ascii=False)
+        except PermissionError:
+            self._unhide_config()
+        finally:
+            self._hide_config()
+
+    def _hide_config(self):
+        if sys.platform == "win32":
+            import subprocess
+            subprocess.check_call(["attrib", "+h", self.__filename])
+
+    @classmethod
+    def _unhide_config(cls):
+        if sys.platform == "win32":
+            import subprocess
+            subprocess.check_call(["attrib", "-h", cls.__filename])
