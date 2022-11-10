@@ -21,6 +21,11 @@ class SideFileSection(list[File]):
                 dst=os.path.join(self.root_dir, file.relative_root, file.filename)
             )
 
+    def delete_selected(self, index_tuple: tuple[int]):
+        for index in index_tuple:
+            file = self[index]
+            os.remove(path=file.path)
+
 
 class CentralFileSideSection(list[File]):
     pass
@@ -136,3 +141,13 @@ class FileManager:
         )):
             return True
         return False
+
+    def get_side(self, side):
+        match side:
+            case c.LEFT:
+                section_files = self.left_section_files
+            case c.RIGHT:
+                section_files = self.right_section_files
+            case _:
+                raise AttributeError(f"section type is not {c.LEFT} or {c.RIGHT}")
+        return section_files

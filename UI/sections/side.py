@@ -47,6 +47,10 @@ class SideSection(BaseSection):
         self.select_all()
         self.add_selected()
 
+    def delete_all(self):
+        self.select_all()
+        self.delete_selected()
+
     @with_confirm(message="Добавляем все отсутствующие файлы и заменяем все конфликтные?")
     def add_all_with_replacing_all(self):
         self.add_all_missing()
@@ -67,13 +71,7 @@ class SideSection(BaseSection):
     def add_selected(self):
         selected_fields = self.file_field.get_selected()
         filemanager = self.parent.filemanager
-        match self.side:
-            case c.LEFT:
-                section_files = filemanager.left_section_files
-            case c.RIGHT:
-                section_files = filemanager.right_section_files
-            case _:
-                raise AttributeError(f"section type is not {c.LEFT} or {c.RIGHT}")
+        section_files = filemanager.get_side(self.side)
         if section_files is None:
             raise NotScannedError
         else:
@@ -83,3 +81,19 @@ class SideSection(BaseSection):
                 copy_error(ex.args[0])
             finally:
                 self.selected_label.set_value(0)
+                self.parent.watch_files()
+
+    def delete_selected(self):
+        selected_fields = self.file_field.get_selected()
+        filemanager = self.parent.filemanager
+        section_files = filemanager.get_side(self.side)
+        if section_files is None:
+            raise NotScannedError
+        else:
+            try:
+                section_files.delete_selected(selected_fields)
+            except Exception as ex:
+                copy_error(ex.args[0])
+            finally:
+                self.selected_label.set_value(0)
+                self.parent.watch_files()

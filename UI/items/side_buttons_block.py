@@ -46,6 +46,16 @@ class SideButtonsBlock(ttk.Frame):
             text="Добавить все отсутствующие",
             command=with_confirm(message="Добавляем все отсутствующие файлы?")(self.parent.add_all_missing)
         )
+        delete_selected_button = Button(
+            master=self,
+            text="Удалить выбранные",
+            command=with_confirm(message="Удаляем выбранные файлы?")(self.parent.delete_selected)
+        )
+        delete_missing_button = Button(
+            master=self,
+            text="Удалить все лишние",
+            command=with_confirm(message="Удаляем все лишние файлы?")(self.parent.delete_all)
+        )
         add_replacing_exiting_button = Button(
             master=self,
             text="Добавить все и заменить все конфликтные",
@@ -62,5 +72,7 @@ class SideButtonsBlock(ttk.Frame):
         clear_selection_button.grid(row=0, column=1, sticky=c.EW, padx=self.pad, pady=self.pad)
         add_selected_button.grid(row=1, column=0, sticky=c.EW, padx=self.pad, pady=self.pad)
         add_missing_button.grid(row=1, column=1, sticky=c.EW, padx=self.pad, pady=self.pad)
-        add_replacing_exiting_button.grid(row=2, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
-        add_replacing_older_button.grid(row=3, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
+        delete_selected_button.grid(row=2, column=0, sticky=c.EW, padx=self.pad, pady=self.pad)
+        delete_missing_button.grid(row=2, column=1, sticky=c.EW, padx=self.pad, pady=self.pad)
+        add_replacing_exiting_button.grid(row=3, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
+        add_replacing_older_button.grid(row=4, column=0, sticky=c.EW, padx=self.pad, pady=self.pad, columnspan=2)
